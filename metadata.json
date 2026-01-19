@@ -1,0 +1,5 @@
+{
+  "name": "Tactical TUI Character Gen",
+  "description": "A military-grade, CLI-first character generator and chat interface featuring local encrypted storage, multi-model simulation, and inline image generation.",
+  "requestFramePermissions": []
+}

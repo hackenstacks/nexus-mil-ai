@@ -1,0 +1,327 @@
+
+<div class="fixed inset-0 flex flex-col pointer-events-none crt-scanline z-50"></div>
+
+<div class="h-screen w-screen flex flex-col bg-neutral-950 text-green-500 p-2 md:p-4 text-sm md:text-base font-mono relative overflow-hidden">
+  
+  <!-- Header -->
+  <header class="border-b-2 border-green-700 pb-2 mb-4 flex justify-between items-center shrink-0">
+    <div class="flex flex-col">
+      <h1 class="text-xl font-bold tracking-tighter">
+        🛡️ TACTICAL CHARACTER GEN <span class="text-xs align-top opacity-70">v0.9.3-FIX</span>
+      </h1>
+      <span class="text-xs text-green-700">MILITARY GRADE ENCRYPTION: {{ isAuthenticated() ? 'ACTIVE 🟢' : 'OFFLINE 🔴' }}</span>
+    </div>
+    <div class="text-right text-xs hidden md:block">
+      <div>SYS_TIME: {{ time() }}</div>
+      <div>MEM_USAGE: {{ memoryUsage() }}%</div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 overflow-hidden flex flex-col min-h-0 relative border border-green-900 bg-black/50 shadow-[0_0_15px_rgba(0,255,0,0.1)]">
+    
+    @if (!isAuthenticated()) {
+      <!-- LOGIN SCREEN -->
+      <div class="absolute inset-0 flex items-center justify-center flex-col p-8 z-20 bg-neutral-950">
+        <div class="w-full max-w-md border border-green-500 p-6 shadow-lg shadow-green-900/20">
+          <div class="mb-6 text-center text-green-400">
+            <pre class="text-[10px] md:text-xs leading-none mb-4 whitespace-pre">
+   ▄▄▄▄▀ ▄█    ▄   ▄█    ▄█ ▄█▄    ▄  █ 
+▀▀▀ █    ██     █  ██    ██ █▀ ▀▄ █   █ 
+    █    ██ ██   █ ██    ██ █   ▀ ██▀▀█ 
+   █     ▐█ █ █  █ ▐█    ▐█ █▄  ▄▀ █  █ 
+  ▀       ▐ █  █ █  ▐     ▐ ▀███▀     █ 
+            █   ██                   ▀  
+            </pre>
+            <p class="mb-2">🔒 SECURE TERMINAL ACCESS REQUIRED</p>
+            <p class="text-xs text-green-700">ENTER PASSWORD TO DECRYPT LOCAL STORAGE</p>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs mb-1">USER_KEY_INPUT:</label>
+              <input 
+                #passInput
+                type="password" 
+                class="w-full bg-black border border-green-600 text-green-400 px-2 py-2 focus:outline-none focus:border-green-300 placeholder-green-900"
+                placeholder="********"
+                (keyup.enter)="login(passInput.value)"
+              >
+            </div>
+            <button 
+              (click)="login(passInput.value)"
+              class="w-full bg-green-900/30 hover:bg-green-800/50 text-green-400 border border-green-600 py-2 transition-all uppercase tracking-widest text-sm font-bold hover:shadow-[0_0_10px_rgba(0,255,0,0.3)]"
+            >
+              Initialize Session_
+            </button>
+            @if (loginError()) {
+              <div class="text-red-500 text-xs text-center font-bold animate-pulse">
+                🚫 ACCESS DENIED: INVALID KEY
+              </div>
+            }
+            @if (securityService.hasVault()) {
+              <div class="text-center text-xs text-yellow-600 mt-2">
+                ⚠️ ENCRYPTED VAULT DETECTED
+              </div>
+            } @else {
+              <div class="text-center text-xs text-blue-600 mt-2">
+                ℹ️ NEW VAULT WILL BE CREATED
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    } @else {
+      <!-- AUTHENTICATED AREA -->
+      <div class="flex flex-col h-full">
+        
+        <!-- BREADCRUMBS / PATH -->
+        <div class="bg-green-900/20 px-2 py-1 text-xs border-b border-green-900 flex gap-2">
+          <span class="opacity-50">root@system:~/</span>
+          <span class="font-bold">{{ currentView() }}</span>
+        </div>
+
+        <div class="flex-1 overflow-auto p-4 custom-scrollbar relative">
+          
+          @switch (currentView()) {
+            
+            @case ('MENU') {
+              <div class="h-full flex flex-col justify-center items-center">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+                  @for (option of menuOptions; track option.id) {
+                    <button 
+                      (click)="navigate(option.view)"
+                      class="group relative text-left p-4 border border-green-800 hover:bg-green-900/20 hover:border-green-400 transition-all"
+                    >
+                      <div class="absolute top-2 right-2 opacity-20 text-2xl group-hover:opacity-100 transition-opacity">
+                        {{option.id}}
+                      </div>
+                      <div class="text-xl mb-1">{{option.emoji}} {{option.label}}</div>
+                      <div class="text-xs text-green-700 group-hover:text-green-500">
+                        {{option.desc}}
+                      </div>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
+            @case ('CREATOR') {
+              <div class="max-w-3xl mx-auto w-full">
+                <h2 class="text-lg border-b border-green-800 mb-4 pb-2">🆕 CREATE_NEW_ENTITY</h2>
+                <div class="space-y-4">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-xs mb-1">NAME</label>
+                      <input [formControl]="charForm.controls.name" class="cli-input w-full" placeholder="e.g. Major Motoko">
+                    </div>
+                    <div>
+                      <label class="block text-xs mb-1">ROLE</label>
+                      <input [formControl]="charForm.controls.role" class="cli-input w-full" placeholder="e.g. Cyborg Detective">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs mb-1">SYSTEM_PROMPT / PERSONALITY</label>
+                    <textarea [formControl]="charForm.controls.prompt" rows="5" class="cli-input w-full" placeholder="Define behavior protocols..."></textarea>
+                  </div>
+                  <div>
+                    <label class="block text-xs mb-1">FIRST_MESSAGE</label>
+                    <input [formControl]="charForm.controls.greeting" class="cli-input w-full" placeholder="Initial communication...">
+                  </div>
+                  
+                  <div class="flex justify-end gap-4 mt-6">
+                    <button (click)="currentView.set('MENU')" class="cli-btn-secondary">CANCEL</button>
+                    <button (click)="saveCharacter()" class="cli-btn-primary">💾 ENCRYPT & SAVE</button>
+                  </div>
+                </div>
+              </div>
+            }
+
+            @case ('ROSTER') {
+              <div class="max-w-3xl mx-auto w-full">
+                <h2 class="text-lg border-b border-green-800 mb-4 pb-2">📂 ENTITY_DATABASE</h2>
+                @if (characters().length === 0) {
+                  <div class="text-center py-10 opacity-50">NO ENTITIES FOUND IN LOCAL STORAGE</div>
+                }
+                <div class="grid gap-2">
+                  @for (char of characters(); track char.id) {
+                    <div class="border border-green-900 p-3 flex justify-between items-center hover:bg-green-900/10">
+                      <div>
+                        <div class="font-bold">{{char.name}}</div>
+                        <div class="text-xs opacity-70">{{char.role}}</div>
+                      </div>
+                      <div class="flex gap-2">
+                        <button (click)="deleteCharacter(char.id)" class="text-red-500 hover:underline text-xs">[DEL]</button>
+                        <button (click)="startChat(char)" class="cli-btn-sm">INIT_CHAT >></button>
+                      </div>
+                    </div>
+                  }
+                </div>
+                <button (click)="currentView.set('MENU')" class="mt-4 text-xs hover:underline">&lt;&lt; RETURN_TO_ROOT</button>
+              </div>
+            }
+
+            @case ('CHAT') {
+              <div class="flex flex-col h-full">
+                <!-- Active Character Header -->
+                <div class="flex justify-between items-center bg-green-900/30 p-2 text-xs mb-2">
+                  <span>CONNECTED: <strong>{{activeCharacter()?.name}}</strong></span>
+                  <div class="flex gap-2">
+                     <button (click)="summarizeContext()" title="Force Summary" class="hover:text-white">🧠 MEM: {{memoryUsage()}}%</button>
+                     <button (click)="exitChat()" class="hover:text-red-400">[TERMINATE_LINK]</button>
+                  </div>
+                </div>
+
+                <!-- Messages Area -->
+                <div #chatContainer class="flex-1 overflow-y-auto space-y-4 pr-2 mb-4 scroll-smooth">
+                   @if (chatHistory().length === 0 && activeCharacter()) {
+                     <div class="text-center opacity-30 my-4">--- ENCRYPTED CHANNEL ESTABLISHED ---</div>
+                     <div class="flex gap-3">
+                        <div class="w-8 h-8 rounded bg-green-900 flex items-center justify-center shrink-0">🤖</div>
+                        <div class="bg-green-900/10 p-2 rounded text-green-300 max-w-[80%]">
+                          {{activeCharacter()?.greeting}}
+                        </div>
+                     </div>
+                   }
+
+                   @for (msg of chatHistory(); track $index) {
+                     <div class="flex gap-3" [class.flex-row-reverse]="msg.role === 'user'">
+                        <div class="w-8 h-8 rounded flex items-center justify-center shrink-0 text-lg border border-green-800"
+                             [ngClass]="{
+                               'bg-green-900': msg.role === 'model',
+                               'bg-blue-900': msg.role === 'user'
+                             }">
+                             {{msg.role === 'user' ? '👤' : '🤖'}}
+                        </div>
+                        
+                        <div class="flex flex-col max-w-[80%]">
+                           <div class="text-[10px] opacity-50 mb-1" [class.text-right]="msg.role === 'user'">
+                             {{msg.role === 'user' ? 'OPERATOR' : activeCharacter()?.name}}
+                           </div>
+                           
+                           <!-- Content -->
+                           <div class="p-2 rounded border"
+                                [ngClass]="{
+                                  'border-green-800 bg-green-900/10': msg.role === 'model',
+                                  'border-blue-800 bg-blue-900/10': msg.role === 'user'
+                                }">
+                              
+                              @if (msg.image) {
+                                <div class="mb-2">
+                                  <img [src]="msg.image" class="max-w-full rounded border border-green-500/50" alt="Generated visual">
+                                </div>
+                              }
+                              <div class="whitespace-pre-wrap">{{msg.text}}</div>
+                           </div>
+                        </div>
+                     </div>
+                   }
+                   
+                   @if (isThinking()) {
+                     <div class="flex gap-3 animate-pulse">
+                       <div class="w-8 h-8 rounded bg-green-900 flex items-center justify-center">⏳</div>
+                       <div class="text-xs self-center">PROCESSING_NEURAL_NET...</div>
+                     </div>
+                   }
+                </div>
+
+                <!-- Input Area -->
+                <div class="mt-auto border-t border-green-800 pt-2">
+                   @if (showCommandHelp()) {
+                     <div class="bg-black border border-green-500 mb-2 p-2 text-xs grid grid-cols-2 gap-2 absolute bottom-16 left-2 right-2 shadow-lg z-10">
+                       <div>/help - List commands</div>
+                       <div>/image {{ '{' }}prompt{{ '}' }} - Generate visual</div>
+                       <div>/summarize - Compress memory</div>
+                       <div>/quit - Exit chat</div>
+                       <div>/save - Save session</div>
+                       <div>/topic {{ '{' }}text{{ '}' }} - Set topic</div>
+                       <div>/role - View role</div>
+                       <div>/clear - Wipe screen</div>
+                     </div>
+                   }
+                   <div class="flex items-center gap-2 bg-black border border-green-700 px-2 py-1 focus-within:ring-1 focus-within:ring-green-400">
+                     <span class="text-green-500 animate-pulse">></span>
+                     <input 
+                       #chatInput
+                       type="text" 
+                       class="flex-1 bg-transparent border-none outline-none text-green-300 placeholder-green-900 font-mono"
+                       placeholder="Enter message or /command..."
+                       (keydown.enter)="handleChatInput(chatInput)"
+                       (keydown.escape)="showCommandHelp.set(false)"
+                     >
+                     <button (click)="handleChatInput(chatInput)" class="text-xs hover:bg-green-900 px-2 py-1">[SEND]</button>
+                   </div>
+                   <div class="text-[10px] text-green-800 mt-1 flex justify-between">
+                     <span>TIP: Use /help for command list</span>
+                     <span>PROVIDER: GEMINI-2.5-FLASH (DEFAULT)</span>
+                   </div>
+                </div>
+              </div>
+            }
+
+            @case ('SETTINGS') {
+               <div class="max-w-2xl mx-auto w-full">
+                 <h2 class="text-lg border-b border-green-800 mb-4 pb-2">⚙️ CONFIGURATION</h2>
+                 
+                 <div class="mb-6">
+                   <h3 class="text-sm font-bold mb-2">API ENDPOINT SELECTION</h3>
+                   <div class="border border-green-800">
+                     <div class="p-2 border-b border-green-800 bg-green-900/20 flex justify-between cursor-pointer">
+                       <span>1. GOOGLE GEMINI (ACTIVE)</span>
+                       <span>[DEFAULT]</span>
+                     </div>
+                     <div class="p-2 border-b border-green-900 text-green-800 flex justify-between opacity-50 cursor-not-allowed">
+                       <span>2. AI HORDE</span>
+                       <span>[OFFLINE]</span>
+                     </div>
+                     <div class="p-2 border-b border-green-900 text-green-800 flex justify-between opacity-50 cursor-not-allowed">
+                       <span>3. MISTRAL AI</span>
+                       <span>[OFFLINE]</span>
+                     </div>
+                     <div class="p-2 border-b border-green-900 text-green-800 flex justify-between opacity-50 cursor-not-allowed">
+                       <span>4. CUSTOM ENDPOINT</span>
+                       <span>[REQUIRES ADMIN]</span>
+                     </div>
+                   </div>
+                 </div>
+
+                 <div class="mb-6">
+                   <h3 class="text-sm font-bold mb-2">STORAGE METRICS</h3>
+                   <div class="grid grid-cols-2 gap-4 text-xs">
+                     <div class="p-2 border border-green-800">
+                       <div class="opacity-70">TOTAL CHARACTERS</div>
+                       <div class="text-xl">{{characters().length}}</div>
+                     </div>
+                     <div class="p-2 border border-green-800">
+                       <div class="opacity-70">VAULT STATUS</div>
+                       <div class="text-xl">SECURE</div>
+                     </div>
+                   </div>
+                 </div>
+
+                 <button (click)="currentView.set('MENU')" class="cli-btn-secondary w-full">&lt;&lt; RETURN_TO_ROOT</button>
+               </div>
+            }
+
+            @case ('LIBRARY') {
+              <div class="h-full flex flex-col items-center justify-center opacity-70">
+                <div class="text-4xl mb-4">📚</div>
+                <div class="text-xl">LORE LIBRARY</div>
+                <div class="text-xs mt-2">ACCESSING ARCHIVES...</div>
+                <div class="text-xs text-green-800 mt-4">NO SHARED FILES FOUND IN CLUSTER</div>
+                <button (click)="currentView.set('MENU')" class="mt-8 hover:underline">&lt;&lt; RETURN</button>
+              </div>
+            }
+          }
+
+        </div>
+      </div>
+    }
+  </main>
+  
+  <footer class="mt-2 text-[10px] text-green-900 flex justify-between uppercase">
+    <span>Ready_</span>
+    <span>TERM_ID: 0x8F2A</span>
+  </footer>
+
+</div>

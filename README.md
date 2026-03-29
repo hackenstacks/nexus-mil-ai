@@ -1,20 +1,34 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🛡️ Tactical Character Generator
 
-# Run and deploy your AI Studio app
+Welcome, Operator! This system is designed for creating and managing personality matrices for your tactical needs.
 
-This contains everything you need to run your app locally.
+## 🚀 Getting Started
 
-View your app in AI Studio: https://ai.studio/apps/39619970-e6c7-4c66-ae5f-f383b512004f
+1. **Initialize Session:** Enter your password to decrypt your local vault. If it's your first time, a new vault will be created.
+2. **Create Entity:** Navigate to `NEW_CHARACTER` to define a new personality.
+3. **Manage Entities:** Use `LOAD_CHARACTER` to view your database.
+4. **Initiate Chat:** Select an entity to start a secure, encrypted communication channel.
+5. **Lore Library:** Upload files (text/images) to share knowledge with your entities.
 
-## Run Locally
+## 🤖 Commands
 
-**Prerequisites:**  Node.js
+Use these commands in the chat interface:
 
+* `/help` - Toggle this command list.
+* `/image [prompt]` - Generate a visual artifact.
+* `/summarize` - Force compression of entity memory.
+* `/quit` - Exit the current chat.
+* `/clear` - Clear the screen.
+* `/topic [text]` - Inject a topic for the entity to focus on.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## ⚙️ Settings
+
+* **API Key:** Ensure you have selected a valid Gemini API key for high-quality image generation.
+* **Theme:** Toggle between **Matrix Green** (Default) and **Neon Blue (Tron)**.
+
+## 🔒 Security
+
+Your data is encrypted locally in your browser. Keep your password safe!
+
+---
+*System ID: 0x8F2A* 🟢

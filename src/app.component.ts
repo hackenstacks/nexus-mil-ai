@@ -57,24 +57,44 @@ interface LibraryFile {
   template: `
 <div class="fixed inset-0 flex flex-col pointer-events-none crt-scanline z-50"></div>
 
-<div class="h-screen w-screen flex flex-col bg-neutral-950 text-green-500 p-2 md:p-4 text-sm md:text-base font-mono relative overflow-hidden">
+<div class="h-screen w-screen flex flex-col bg-bg text-primary p-2 md:p-4 text-sm md:text-base font-mono relative overflow-hidden" [attr.data-theme]="theme()">
   
   <!-- Header -->
-  <header class="border-b-2 border-green-700 pb-2 mb-4 flex justify-between items-center shrink-0">
+  <header class="border-b-2 border-border pb-2 mb-4 flex justify-between items-center shrink-0">
     <div class="flex flex-col">
       <h1 class="text-xl font-bold tracking-tighter">
         🛡️ TACTICAL CHARACTER GEN <span class="text-xs align-top opacity-70">v0.9.3-FIX</span>
       </h1>
-      <span class="text-xs text-green-700">MILITARY GRADE ENCRYPTION: {{ isAuthenticated() ? 'ACTIVE 🟢' : 'OFFLINE 🔴' }}</span>
+      <span class="text-xs text-primary/70">MILITARY GRADE ENCRYPTION: {{ isAuthenticated() ? 'ACTIVE 🟢' : 'OFFLINE 🔴' }}</span>
     </div>
-    <div class="text-right text-xs hidden md:block">
-      <div>SYS_TIME: {{ time() }}</div>
-      <div>MEM_USAGE: {{ memoryUsage() }}%</div>
+    <div class="flex gap-2">
+      <button (click)="theme.set(theme() === 'matrix' ? 'tron' : 'matrix')" class="cli-btn-sm">THEME: {{theme() | uppercase}}</button>
+      <button (click)="showHelp.set(true)" class="cli-btn-sm">HELP ❓</button>
     </div>
   </header>
 
+  <!-- Help Popup -->
+  @if (showHelp()) {
+    <div class="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/80" (click)="showHelp.set(false)">
+      <div class="w-full max-w-lg bg-bg border border-primary p-6 shadow-[0_0_20px_var(--color-glow)]" (click)="$event.stopPropagation()">
+        <h2 class="text-2xl font-bold mb-4 text-primary">🛡️ TACTICAL SYSTEM HELP</h2>
+        <div class="space-y-2 text-xs">
+          <p>Welcome, Operator! 🤖</p>
+          <p>This system is designed for creating and managing personality matrices for your tactical needs.</p>
+          <p><strong>1. Initialize Session:</strong> Enter your password to decrypt your local vault.</p>
+          <p><strong>2. Create Entity:</strong> Navigate to NEW_CHARACTER to define a new personality.</p>
+          <p><strong>3. Initiate Chat:</strong> Select an entity to start a secure, encrypted communication channel.</p>
+          <p><strong>4. Commands:</strong> Use /help in chat for a list of commands like /image or /summarize.</p>
+          <p><strong>5. Themes:</strong> Toggle between Matrix Green and Neon Blue (Tron) in the header.</p>
+          <p><em>System ID: 0x8F2A</em> 🟢</p>
+        </div>
+        <button (click)="showHelp.set(false)" class="mt-6 w-full cli-btn-primary">CLOSE_TERMINAL</button>
+      </div>
+    </div>
+  }
+
   <!-- Main Content Area -->
-  <main class="flex-1 overflow-hidden flex flex-col min-h-0 relative border border-green-900 bg-black/50 shadow-[0_0_15px_rgba(0,255,0,0.1)]">
+  <main class="flex-1 overflow-hidden flex flex-col min-h-0 relative border border-border bg-black/50 shadow-[0_0_15px_var(--color-glow)]">
     
     @if (!isAuthenticated()) {
       <!-- LOGIN SCREEN -->
@@ -596,16 +616,16 @@ interface LibraryFile {
 `,
   styles: [`
     .cli-btn-primary {
-      @apply bg-green-700 text-black font-bold px-4 py-2 hover:bg-green-500 hover:shadow-[0_0_10px_rgba(0,255,0,0.5)] transition-all uppercase border border-green-500;
+      @apply bg-primary text-black font-bold px-4 py-2 hover:bg-primary/80 hover:shadow-[0_0_10px_var(--color-glow)] transition-all uppercase border border-primary;
     }
     .cli-btn-secondary {
-      @apply bg-transparent text-green-600 border border-green-800 px-4 py-2 hover:bg-green-900/30 hover:text-green-400 transition-all uppercase;
+      @apply bg-transparent text-primary border border-border px-4 py-2 hover:bg-primary/20 hover:text-primary transition-all uppercase;
     }
     .cli-btn-sm {
-      @apply bg-green-900/50 border border-green-700 text-xs px-2 py-1 hover:bg-green-700 hover:text-black uppercase;
+      @apply bg-primary/20 border border-border text-xs px-2 py-1 hover:bg-primary hover:text-black uppercase;
     }
     .cli-input {
-      @apply bg-black border border-green-800 text-green-300 p-2 focus:outline-none focus:border-green-500 font-mono text-sm;
+      @apply bg-black border border-border text-primary p-2 focus:outline-none focus:border-primary font-mono text-sm;
     }
     .custom-scrollbar::-webkit-scrollbar {
       width: 4px;
@@ -635,6 +655,8 @@ export class AppComponent {
   hordeApiKey = signal('0000000000');
   selectedImagePreset = signal<string>('none');
   customNegativePrompt = signal('');
+  theme = signal<'matrix' | 'tron'>('matrix');
+  showHelp = signal(false);
 
   imagePresets: ImagePreset[] = [
     { id: 'none', name: 'NONE', positive: '', negative: '' },

@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #00ff00;
+  --color-bg: #0a0a0a;
+  --color-border: #008f11;
+  --color-glow: rgba(0, 255, 0, 0.2);
+}
+
+[data-theme='tron'] {
+  --color-primary: #00d4ff;
+  --color-bg: #050a14;
+  --color-border: #0055ff;
+  --color-glow: rgba(0, 212, 255, 0.2);
+}

@@ -84,7 +84,11 @@ export class SecurityService {
       localStorage.setItem(this.STORAGE_KEY, encrypted);
       return true;
     } catch (e) {
-      console.error('Encryption failed', e);
+      if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+        console.error('Vault storage quota exceeded. Please clear some data.', e);
+      } else {
+        console.error('Encryption failed', e);
+      }
       return false;
     }
   }
@@ -95,7 +99,7 @@ export class SecurityService {
 
     // 1. Try V2 decryption (Robust with Magic Header)
     const decryptedV2 = this.decryptV2(encrypted, key);
-    if (decryptedV2 && decryptedV2.trim()) {
+    if (decryptedV2 !== null) {
       try {
         return JSON.parse(decryptedV2);
       } catch (e) {
@@ -107,7 +111,7 @@ export class SecurityService {
 
     // 2. Fallback to V1 decryption (Legacy formats)
     const decryptedV1 = this.decryptV1(encrypted, key);
-    if (decryptedV1 && decryptedV1.trim()) {
+    if (decryptedV1 !== null) {
       try {
         return JSON.parse(decryptedV1);
       } catch (e) {

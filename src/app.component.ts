@@ -14,15 +14,6 @@ interface Character {
   prompt: string;
   greeting: string;
   memory: string; // Long term summary
-  chatHistory?: ChatMessage[]; // Persisted chat per character
-}
-
-interface AppSettings {
-  theme: 'DARK' | 'MATRIX' | 'TACTICAL';
-  autoSave: boolean;
-  imageProvider: 'GEMINI' | 'HORDE' | 'POLLINATIONS';
-  hordeApiKey: string;
-  defaultPreset: string;
 }
 
 interface ChatMessage {
@@ -72,16 +63,9 @@ interface LibraryFile {
   <header class="border-b-2 border-green-700 pb-2 mb-4 flex justify-between items-center shrink-0">
     <div class="flex flex-col">
       <h1 class="text-xl font-bold tracking-tighter">
-        🛡️ TACTICAL CHARACTER GEN <span class="text-xs align-top opacity-70">v0.9.4-SEC</span>
+        🛡️ TACTICAL CHARACTER GEN <span class="text-xs align-top opacity-70">v0.9.3-FIX</span>
       </h1>
-      <div class="flex items-center gap-2">
-        <span class="text-xs text-green-700">MILITARY GRADE ENCRYPTION: {{ isAuthenticated() ? 'ACTIVE 🟢' : 'OFFLINE 🔴' }}</span>
-        @if (isAuthenticated()) {
-          <button (click)="persistData()" class="text-[10px] bg-green-900/30 border border-green-700 px-2 py-0.5 hover:bg-green-700 hover:text-black transition-all">
-            💾 SAVE_VAULT
-          </button>
-        }
-      </div>
+      <span class="text-xs text-green-700">MILITARY GRADE ENCRYPTION: {{ isAuthenticated() ? 'ACTIVE 🟢' : 'OFFLINE 🔴' }}</span>
     </div>
     <div class="text-right text-xs hidden md:block">
       <div>SYS_TIME: {{ time() }}</div>
@@ -91,12 +75,6 @@ interface LibraryFile {
 
   <!-- Main Content Area -->
   <main class="flex-1 overflow-hidden flex flex-col min-h-0 relative border border-green-900 bg-black/50 shadow-[0_0_15px_rgba(0,255,0,0.1)]">
-    <!-- STATUS MESSAGE OVERLAY -->
-    @if (statusMessage()) {
-      <div class="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-green-900 border border-green-400 text-green-400 px-4 py-2 text-xs uppercase tracking-widest shadow-lg animate-pulse">
-        {{ statusMessage() }}
-      </div>
-    }
     
     @if (!isAuthenticated()) {
       <!-- LOGIN SCREEN -->
@@ -363,106 +341,89 @@ interface LibraryFile {
             }
 
             @case ('SETTINGS') {
-               <div class="max-w-2xl mx-auto w-full h-full flex flex-col overflow-y-auto custom-scrollbar pr-2">
-                 <h2 class="text-lg border-b border-green-800 mb-4 pb-2 flex justify-between items-center">
-                   <span>⚙️ SYSTEM_CONFIGURATION</span>
-                   <button (click)="currentView.set('MENU')" class="cli-btn-sm">RETURN_TO_ROOT</button>
-                 </h2>
+               <div class="max-w-2xl mx-auto w-full">
+                 <h2 class="text-lg border-b border-green-800 mb-4 pb-2">⚙️ CONFIGURATION</h2>
                  
                  <div class="mb-6">
-                   <h3 class="text-sm font-bold mb-2 text-green-700 uppercase tracking-widest border-b border-green-900 pb-1">API_CONFIGURATION</h3>
-                   <div class="p-3 border border-green-800 bg-green-900/10 flex flex-col gap-4">
-                     <div>
-                       <label class="block text-xs mb-1 uppercase">Gemini API Key Status:</label>
-                       <div class="flex justify-between items-center p-2 border border-green-900 bg-black/40">
-                         <span [class.text-green-400]="hasSelectedKey()" [class.text-yellow-500]="!hasSelectedKey()">
-                           {{ hasSelectedKey() ? 'SELECTED 🟢' : 'NOT SELECTED 🟡' }}
-                         </span>
-                         <button (click)="openApiKeyDialog()" class="cli-btn-sm">
-                           {{ hasSelectedKey() ? 'CHANGE_KEY' : 'SELECT_KEY' }}
-                         </button>
-                       </div>
-                       <p class="text-[10px] opacity-50 mt-1 italic">A paid API key is required for high-quality image generation.</p>
+                   <h3 class="text-sm font-bold mb-2">GEMINI API KEY STATUS</h3>
+                   <div class="p-3 border border-green-800 bg-green-900/10 flex flex-col gap-2">
+                     <div class="flex justify-between items-center">
+                       <span class="text-xs uppercase">Key Selection:</span>
+                       <span [class.text-green-400]="hasSelectedKey()" [class.text-yellow-500]="!hasSelectedKey()">
+                         {{ hasSelectedKey() ? 'SELECTED 🟢' : 'NOT SELECTED 🟡' }}
+                       </span>
                      </div>
-                 </div>
-
-                     <div>
-                       <label class="block text-xs mb-1 uppercase">Image Generation Provider:</label>
-                       <select 
-                         [value]="settings().imageProvider"
-                         (change)="updateSettings({imageProvider: $any($event.target).value})"
-                         class="w-full cli-input">
-                         <option value="GEMINI">GOOGLE_GEMINI (NATIVE)</option>
-                         <option value="HORDE">AI_HORDE (STABLE_DIFFUSION)</option>
-                         <option value="POLLINATIONS">POLLINATIONS (FAST)</option>
-                       </select>
-                     </div>
-
-                     @if (settings().imageProvider === 'HORDE') {
-                       <div>
-                         <label class="block text-xs mb-1 uppercase">AI Horde API Key:</label>
-                         <input 
-                           type="password" 
-                           class="cli-input w-full" 
-                           [value]="settings().hordeApiKey"
-                           (change)="updateSettings({hordeApiKey: $any($event.target).value})"
-                           placeholder="0000000000"
-                         >
-                         <p class="text-[10px] mt-1 opacity-50 italic">Leave as 0000000000 for anonymous access.</p>
-                       </div>
-                     }
-                   </div>
-                 </div>
-
-                 <!-- SYSTEM PREFERENCES -->
-                 <div class="mb-6">
-                   <h3 class="text-sm font-bold mb-2 text-green-700 uppercase tracking-widest border-b border-green-900 pb-1">SYSTEM_PREFERENCES</h3>
-                   <div class="p-3 border border-green-800 bg-green-900/10 flex flex-col gap-4">
-                     <div class="flex items-center justify-between">
-                       <label class="text-xs uppercase">Auto-Save to Vault:</label>
-                       <button 
-                         (click)="updateSettings({autoSave: !settings().autoSave})"
-                         [class]="settings().autoSave ? 'text-green-400' : 'text-red-900'">
-                         [{{ settings().autoSave ? 'ENABLED' : 'DISABLED' }}]
-                       </button>
-                     </div>
-
-                     <div>
-                       <label class="block text-xs mb-1 uppercase">UI Theme Protocol:</label>
-                       <select 
-                         [value]="settings().theme"
-                         (change)="updateSettings({theme: $any($event.target).value})"
-                         class="w-full cli-input">
-                         <option value="TACTICAL">TACTICAL_GREEN</option>
-                         <option value="MATRIX">MATRIX_DIGITAL</option>
-                         <option value="DARK">PURE_DARK</option>
-                       </select>
-                     </div>
-                   </div>
-                 </div>
-
-                 <!-- DATA MANAGEMENT -->
-                 <div class="mb-6">
-                   <h3 class="text-sm font-bold mb-2 text-green-700 uppercase tracking-widest border-b border-green-900 pb-1">DATA_MANAGEMENT_PROTOCOLS</h3>
-                   <div class="p-3 border border-green-800 bg-green-900/10 flex flex-col gap-4">
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                       <button (click)="exportVault()" class="cli-btn-secondary flex items-center justify-center gap-2 py-3">
-                         📤 EXPORT_VAULT
-                       </button>
-                       
-                       <label class="cli-btn-secondary flex items-center justify-center gap-2 py-3 cursor-pointer">
-                         📥 IMPORT_VAULT
-                         <input type="file" (change)="importVault($event)" class="hidden" accept=".json">
-                       </label>
-                     </div>
-
-                     <button (click)="persistData()" class="cli-btn flex items-center justify-center gap-2 py-3">
-                       💾 FORCE_VAULT_SYNC
+                     <p class="text-[10px] opacity-70">A paid API key is required for high-quality image generation (Imagen/Flash Image Preview). If you encounter 403 errors, please select a valid key.</p>
+                     <button (click)="openApiKeyDialog()" class="cli-btn-sm mt-2">
+                       {{ hasSelectedKey() ? 'CHANGE_API_KEY' : 'SELECT_API_KEY' }}
                      </button>
-                     
-                     <p class="text-[10px] text-red-900 uppercase font-bold text-center">
-                       WARNING: IMPORTING A VAULT WILL OVERWRITE YOUR CURRENT LOCAL DATA.
-                     </p>
+                   </div>
+                 </div>
+
+                 <div class="mb-6">
+                   <h3 class="text-sm font-bold mb-2">IMAGE GENERATION PROVIDER</h3>
+                   <div class="border border-green-800">
+                     <div 
+                       (click)="selectedImageProvider.set('GEMINI')"
+                       class="p-2 border-b border-green-800 flex justify-between cursor-pointer hover:bg-green-900/10"
+                       [class.bg-green-900/30]="selectedImageProvider() === 'GEMINI'"
+                     >
+                       <span>1. GOOGLE GEMINI</span>
+                       <span class="text-xs">{{ selectedImageProvider() === 'GEMINI' ? '[ACTIVE]' : '' }}</span>
+                     </div>
+                     <div 
+                       (click)="selectedImageProvider.set('HORDE')"
+                       class="p-2 border-b border-green-800 flex justify-between cursor-pointer hover:bg-green-900/10"
+                       [class.bg-green-900/30]="selectedImageProvider() === 'HORDE'"
+                     >
+                       <span>2. AI HORDE</span>
+                       <span class="text-xs">{{ selectedImageProvider() === 'HORDE' ? '[ACTIVE]' : '' }}</span>
+                     </div>
+                     <div 
+                       (click)="selectedImageProvider.set('POLLINATIONS')"
+                       class="p-2 border-b border-green-800 flex justify-between cursor-pointer hover:bg-green-900/10"
+                       [class.bg-green-900/30]="selectedImageProvider() === 'POLLINATIONS'"
+                     >
+                       <span>3. POLLINATIONS.AI</span>
+                       <span class="text-xs">{{ selectedImageProvider() === 'POLLINATIONS' ? '[ACTIVE]' : '' }}</span>
+                     </div>
+                   </div>
+
+                   @if (selectedImageProvider() === 'HORDE') {
+                     <div class="mt-4 p-3 border border-green-800 bg-green-900/10">
+                       <label class="block text-xs mb-1 uppercase">AI Horde API Key:</label>
+                       <input 
+                         #hordeKeyInput
+                         type="password" 
+                         class="cli-input w-full" 
+                         [value]="hordeApiKey()"
+                         (input)="hordeApiKey.set(hordeKeyInput.value)"
+                         placeholder="0000000000"
+                       >
+                       <p class="text-[10px] mt-1 opacity-50 italic">Leave as 0000000000 for anonymous access (slower).</p>
+                     </div>
+                   }
+                 </div>
+
+                 <div class="mb-6">
+                   <h3 class="text-sm font-bold mb-2">API ENDPOINT SELECTION</h3>
+                   <div class="border border-green-800">
+                     <div class="p-2 border-b border-green-800 bg-green-900/20 flex justify-between cursor-pointer">
+                       <span>1. GOOGLE GEMINI (ACTIVE)</span>
+                       <span>[DEFAULT]</span>
+                     </div>
+                     <div class="p-2 border-b border-green-900 text-green-800 flex justify-between opacity-50 cursor-not-allowed">
+                       <span>2. AI HORDE</span>
+                       <span>[OFFLINE]</span>
+                     </div>
+                     <div class="p-2 border-b border-green-900 text-green-800 flex justify-between opacity-50 cursor-not-allowed">
+                       <span>3. MISTRAL AI</span>
+                       <span>[OFFLINE]</span>
+                     </div>
+                     <div class="p-2 border-b border-green-900 text-green-800 flex justify-between opacity-50 cursor-not-allowed">
+                       <span>4. CUSTOM ENDPOINT</span>
+                       <span>[REQUIRES ADMIN]</span>
+                     </div>
                    </div>
                  </div>
 
@@ -517,7 +478,7 @@ interface LibraryFile {
                    </div>
                  </div>
 
-                 <button (click)="currentView.set('MENU')" class="cli-btn-secondary w-full mt-4">&lt;&lt; RETURN_TO_ROOT</button>
+                 <button (click)="currentView.set('MENU')" class="cli-btn-secondary w-full">&lt;&lt; RETURN_TO_ROOT</button>
                </div>
             }
 
@@ -670,16 +631,8 @@ export class AppComponent {
   loginError = signal(false);
   userKey = signal('');
   hasSelectedKey = signal(false);
-  
-  // Settings
-  settings = signal<AppSettings>({
-    theme: 'TACTICAL',
-    autoSave: true,
-    imageProvider: 'GEMINI',
-    hordeApiKey: '0000000000',
-    defaultPreset: 'none'
-  });
-
+  selectedImageProvider = signal<'GEMINI' | 'HORDE' | 'POLLINATIONS'>('GEMINI');
+  hordeApiKey = signal('0000000000');
   selectedImagePreset = signal<string>('none');
   customNegativePrompt = signal('');
 
@@ -770,12 +723,7 @@ export class AppComponent {
     if (!this.securityService.hasVault()) {
       // First time setup
       this.userKey.set(password);
-      this.securityService.saveToVault(password, { 
-        characters: [], 
-        libraryFiles: [], 
-        chatHistory: [],
-        settings: this.settings()
-      });
+      this.securityService.saveToVault(password, { characters: [], libraryFiles: [], chatHistory: [] });
       this.isAuthenticated.set(true);
     } else {
       // Try decrypt
@@ -785,9 +733,6 @@ export class AppComponent {
         this.characters.set(data.characters || []);
         this.libraryFiles.set(data.libraryFiles || []);
         this.chatHistory.set(data.chatHistory || []);
-        if (data.settings) {
-          this.settings.set(data.settings);
-        }
         this.isAuthenticated.set(true);
       } else {
         this.loginError.set(true);
@@ -843,85 +788,21 @@ export class AppComponent {
     this.securityService.saveToVault(this.userKey(), { 
       characters: this.characters(),
       libraryFiles: this.libraryFiles(),
-      chatHistory: this.chatHistory(),
-      settings: this.settings()
+      chatHistory: this.chatHistory().slice(-50)
     });
-  }
-
-  exportVault() {
-    const data = {
-      characters: this.characters(),
-      libraryFiles: this.libraryFiles(),
-      chatHistory: this.chatHistory(),
-      settings: this.settings(),
-      exportDate: new Date().toISOString(),
-      version: '1.0'
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `tactical_vault_export_${new Date().getTime()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  statusMessage = signal<string | null>(null);
-
-  showStatus(msg: string) {
-    this.statusMessage.set(msg);
-    setTimeout(() => this.statusMessage.set(null), 3000);
-  }
-
-  async importVault(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (!input.files?.length) return;
-    
-    const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = JSON.parse(e.target?.result as string);
-        if (data.characters) this.characters.set(data.characters);
-        if (data.libraryFiles) this.libraryFiles.set(data.libraryFiles);
-        if (data.chatHistory) this.chatHistory.set(data.chatHistory);
-        if (data.settings) this.settings.set(data.settings);
-        
-        this.persistData();
-        this.showStatus('VAULT IMPORT SUCCESSFUL. DATA SYNCHRONIZED.');
-      } catch (err) {
-        this.showStatus('IMPORT FAILED: INVALID DATA FORMAT.');
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  updateSettings(newSettings: Partial<AppSettings>) {
-    this.settings.update(s => ({ ...s, ...newSettings }));
-    this.persistData();
   }
 
   // Chat Logic
   startChat(char: Character) {
     this.activeCharacter.set(char);
-    this.chatHistory.set(char.chatHistory || []);
+    this.chatHistory.set([]); // Reset for session (persisted chat not implemented in this simple demo)
     this.currentView.set('CHAT');
     
     // Add greeting if history empty
-    if (this.chatHistory().length === 0) {
-      this.addMessage('model', char.greeting);
-    }
+    // (Handled in template for visual, but logic-wise we wait for user input usually)
   }
 
   exitChat() {
-    // Save current chat to character before exiting
-    const active = this.activeCharacter();
-    if (active) {
-      this.characters.update(chars => chars.map(c => 
-        c.id === active.id ? { ...c, chatHistory: this.chatHistory() } : c
-      ));
-      this.persistData();
-    }
     this.activeCharacter.set(null);
     this.currentView.set('MENU');
   }
@@ -949,20 +830,7 @@ export class AppComponent {
   }
 
   addMessage(role: 'user' | 'model', text: string, image?: string) {
-    const newMessage: ChatMessage = { role, text, image, timestamp: Date.now() };
-    this.chatHistory.update(h => [...h, newMessage]);
-    
-    // Auto-save to character
-    const active = this.activeCharacter();
-    if (active) {
-      this.characters.update(chars => chars.map(c => 
-        c.id === active.id ? { ...c, chatHistory: this.chatHistory() } : c
-      ));
-      if (this.settings().autoSave) {
-        this.persistData();
-      }
-    }
-    
+    this.chatHistory.update(h => [...h, { role, text, image, timestamp: Date.now() }]);
     this.scrollToBottom();
   }
 
@@ -1000,7 +868,7 @@ export class AppComponent {
         }
         this.isThinking.set(true);
         let img: string | null = null;
-        const provider = this.settings().imageProvider;
+        const provider = this.selectedImageProvider();
         const preset = this.getActivePreset();
         
         // Construct final prompt with preset modifiers
@@ -1014,7 +882,7 @@ export class AppComponent {
         if (provider === 'GEMINI') {
           img = await this.aiService.generateImage(finalPrompt, negativePrompt);
         } else if (provider === 'HORDE') {
-          img = await this.aiService.generateImageHorde(finalPrompt, this.settings().hordeApiKey, negativePrompt);
+          img = await this.aiService.generateImageHorde(finalPrompt, this.hordeApiKey(), negativePrompt);
         } else if (provider === 'POLLINATIONS') {
           // Pollinations doesn't have a separate negative prompt field, so we append it
           const pollPrompt = negativePrompt ? `${finalPrompt} (negative: ${negativePrompt})` : finalPrompt;
@@ -1141,15 +1009,10 @@ export class AppComponent {
     const promptMsg = recentHistory[recentHistory.length - 1]; // This is the one we just added
     const historyForAi = recentHistory.slice(0, -1);
 
-    const active = this.activeCharacter();
-    const relevantFiles = active ? this.getLibraryFilesForCharacter(active) : [];
-    const context = relevantFiles.map(f => `FILE: ${f.name}\nCONTENT: ${f.content}`).join('\n\n');
-
     const response = await this.aiService.generateResponse(
       promptMsg.text, 
       systemPrompt, 
-      historyForAi,
-      context
+      historyForAi
     );
 
     this.isThinking.set(false);

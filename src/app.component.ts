@@ -57,15 +57,15 @@ interface LibraryFile {
   template: `
 <div class="fixed inset-0 flex flex-col pointer-events-none crt-scanline z-50"></div>
 
-<div class="h-screen w-screen flex flex-col bg-bg text-primary p-2 md:p-4 text-sm md:text-base font-mono relative overflow-hidden" [attr.data-theme]="theme()">
+<div class="h-screen w-screen flex flex-col bg-[var(--color-bg)] text-[var(--color-primary)] p-2 md:p-4 text-sm md:text-base font-mono relative overflow-hidden" [attr.data-theme]="theme()">
   
   <!-- Header -->
-  <header class="border-b-2 border-border pb-2 mb-4 flex justify-between items-center shrink-0">
+  <header class="border-b-2 border-[var(--color-border)] pb-2 mb-4 flex justify-between items-center shrink-0">
     <div class="flex flex-col">
       <h1 class="text-xl font-bold tracking-tighter">
         🛡️ TACTICAL CHARACTER GEN <span class="text-xs align-top opacity-70">v0.9.3-FIX</span>
       </h1>
-      <span class="text-xs text-primary/70">MILITARY GRADE ENCRYPTION: {{ isAuthenticated() ? 'ACTIVE 🟢' : 'OFFLINE 🔴' }}</span>
+      <span class="text-xs text-[var(--color-primary)]/70">MILITARY GRADE ENCRYPTION: {{ isAuthenticated() ? 'ACTIVE 🟢' : 'OFFLINE 🔴' }}</span>
     </div>
     <div class="flex gap-2">
       <button (click)="theme.set(theme() === 'matrix' ? 'tron' : 'matrix')" class="cli-btn-sm">THEME: {{theme() | uppercase}}</button>
@@ -76,8 +76,8 @@ interface LibraryFile {
   <!-- Help Popup -->
   @if (showHelp()) {
     <div class="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/80" (click)="showHelp.set(false)">
-      <div class="w-full max-w-lg bg-bg border border-primary p-6 shadow-[0_0_20px_var(--color-glow)]" (click)="$event.stopPropagation()">
-        <h2 class="text-2xl font-bold mb-4 text-primary">🛡️ TACTICAL SYSTEM HELP</h2>
+      <div class="w-full max-w-lg bg-[var(--color-bg)] border border-[var(--color-primary)] p-6 shadow-[0_0_20px_var(--color-glow)]" (click)="$event.stopPropagation()">
+        <h2 class="text-2xl font-bold mb-4 text-[var(--color-primary)]">🛡️ TACTICAL SYSTEM HELP</h2>
         <div class="space-y-2 text-xs">
           <p>Welcome, Operator! 🤖</p>
           <p>This system is designed for creating and managing personality matrices for your tactical needs.</p>
@@ -152,7 +152,7 @@ interface LibraryFile {
       <div class="flex flex-col h-full">
         
         <!-- BREADCRUMBS / PATH -->
-        <div class="bg-green-900/20 px-2 py-1 text-xs border-b border-green-900 flex gap-2">
+        <div class="bg-[var(--color-primary)]/20 px-2 py-1 text-xs border-b border-[var(--color-border)] flex gap-2">
           <span class="opacity-50">root@system:~/</span>
           <span class="font-bold">{{ currentView() }}</span>
         </div>
@@ -167,13 +167,13 @@ interface LibraryFile {
                   @for (option of menuOptions; track option.id) {
                     <button 
                       (click)="navigate(option.view)"
-                      class="group relative text-left p-4 border border-green-800 hover:bg-green-900/20 hover:border-green-400 transition-all"
+                      class="group relative text-left p-4 border border-[var(--color-border)] hover:bg-[var(--color-primary)]/20 hover:border-[var(--color-primary)] transition-all"
                     >
                       <div class="absolute top-2 right-2 opacity-20 text-2xl group-hover:opacity-100 transition-opacity">
                         {{option.id}}
                       </div>
                       <div class="text-xl mb-1">{{option.emoji}} {{option.label}}</div>
-                      <div class="text-xs text-green-700 group-hover:text-green-500">
+                      <div class="text-xs text-[var(--color-border)] group-hover:text-[var(--color-primary)]">
                         {{option.desc}}
                       </div>
                     </button>
@@ -184,7 +184,7 @@ interface LibraryFile {
 
             @case ('CREATOR') {
               <div class="max-w-3xl mx-auto w-full">
-                <h2 class="text-lg border-b border-green-800 mb-4 pb-2">🆕 CREATE_NEW_ENTITY</h2>
+                <h2 class="text-lg border-b border-[var(--color-border)] mb-4 pb-2">🆕 CREATE_NEW_ENTITY</h2>
                 <div class="space-y-4">
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -215,13 +215,13 @@ interface LibraryFile {
 
             @case ('ROSTER') {
               <div class="max-w-3xl mx-auto w-full">
-                <h2 class="text-lg border-b border-green-800 mb-4 pb-2">📂 ENTITY_DATABASE</h2>
+                <h2 class="text-lg border-b border-[var(--color-border)] mb-4 pb-2">📂 ENTITY_DATABASE</h2>
                 @if (characters().length === 0) {
                   <div class="text-center py-10 opacity-50">NO ENTITIES FOUND IN LOCAL STORAGE</div>
                 }
                 <div class="grid gap-2">
                   @for (char of characters(); track char.id) {
-                    <div class="border border-green-900 p-3 flex justify-between items-center hover:bg-green-900/10">
+                    <div class="border border-[var(--color-border)] p-3 flex justify-between items-center hover:bg-[var(--color-primary)]/10">
                       <div>
                         <div class="font-bold">{{char.name}}</div>
                         <div class="text-xs opacity-70">{{char.role}}</div>
@@ -240,10 +240,10 @@ interface LibraryFile {
             @case ('CHAT') {
               <div class="flex flex-col h-full">
                 <!-- Active Character Header -->
-                <div class="flex justify-between items-center bg-green-900/30 p-2 text-xs mb-2 border border-green-800">
+                <div class="flex justify-between items-center bg-[var(--color-primary)]/30 p-2 text-xs mb-2 border border-[var(--color-border)]">
                   <div class="flex items-center gap-4">
                     <span>CONNECTED: <strong>{{activeCharacter()?.name}}</strong></span>
-                    <div class="flex gap-2 border-l border-green-800 pl-4">
+                    <div class="flex gap-2 border-l border-[var(--color-border)] pl-4">
                       <button (click)="currentView.set('LIBRARY')" class="hover:text-white text-[10px]">[📚 LIBRARY]</button>
                       <button (click)="currentView.set('SETTINGS')" class="hover:text-white text-[10px]">[⚙️ SETTINGS]</button>
                     </div>
@@ -256,10 +256,10 @@ interface LibraryFile {
 
                 <!-- Shared Files Indicator -->
                 @if (getSharedFiles().length > 0) {
-                  <div class="mb-2 px-2 py-1 bg-green-900/10 border border-green-900/30 rounded text-[9px] flex items-center gap-2 overflow-x-auto custom-scrollbar">
-                    <span class="text-green-700 font-bold shrink-0 uppercase">Shared Archives:</span>
+                  <div class="mb-2 px-2 py-1 bg-[var(--color-primary)]/10 border border-[var(--color-border)]/30 rounded text-[9px] flex items-center gap-2 overflow-x-auto custom-scrollbar">
+                    <span class="text-[var(--color-border)] font-bold shrink-0 uppercase">Shared Archives:</span>
                     @for (file of getSharedFiles(); track file.id) {
-                      <span class="px-1 bg-green-900/20 border border-green-800 text-green-500 whitespace-nowrap">
+                      <span class="px-1 bg-[var(--color-primary)]/20 border border-[var(--color-border)] text-[var(--color-primary)] whitespace-nowrap">
                         {{ file.name }}
                       </span>
                     }
